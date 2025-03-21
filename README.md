@@ -1,29 +1,28 @@
-# Bridge Competition App
+# Bridge Competition Management System
 
-A web application for managing a bridge building competition, built with TypeScript and Firebase.
+A web application for managing the Bridge Competition, including student check-in, judging, and score tracking.
 
 ## Features
 
-- User authentication (register/login)
-- Leaderboard system
-- Judge portal for evaluating submissions
-- Modern, responsive UI with a static sidebar navigation
-- Real-time updates using Firebase
+- Student Check-in System
+- Real-time Participant Management
+- Judge Portal for Scoring
+- Leaderboard Display
+- Admin Panel for User Management
+- Bulk Student Registration via CSV
 
-## Tech Stack
+## Prerequisites
 
-- TypeScript
-- Firebase (Authentication & Firestore)
-- HTML5
-- CSS3
-- Font Awesome Icons
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Firebase account and project
 
-## Getting Started
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/bridge-competition.git
-cd bridge-competition
+git clone https://github.com/PEO-Brampton/BBC-APP.git
+cd BBC-APP
 ```
 
 2. Install dependencies:
@@ -31,35 +30,51 @@ cd bridge-competition
 npm install
 ```
 
-3. Set up Firebase:
+3. Configure Firebase:
    - Create a new Firebase project
-   - Enable Email/Password authentication
-   - Create a Firestore database
-   - Copy your Firebase configuration to `src/firebase-config.ts`
+   - Enable Realtime Database
+   - Copy your Firebase configuration
+   - Update the configuration in `src/services/firebase.ts`
 
-4. Start the development server:
+## Development
+
+Start the development server:
 ```bash
 npm start
 ```
+
+The application will be available at `http://localhost:4000`.
+
+## Building for Production
+
+Build the application:
+```bash
+npm run build
+```
+
+The built files will be in the `dist` directory.
 
 ## Project Structure
 
 ```
 src/
-├── index.html          # Main HTML file
-├── index.ts           # Main TypeScript file
-├── styles.css         # Global styles
-└── firebase-config.ts # Firebase configuration
+├── components/     # UI Components
+├── services/      # Firebase and other services
+├── utils/         # Helper functions
+├── types/         # TypeScript interfaces
+├── index.ts       # Main application entry
+├── index.html     # HTML template
+└── styles.css     # Global styles
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the ISC License. 

@@ -21,6 +21,7 @@ const database = getDatabase(app);
 // Database references
 const participantsRef = ref(database, 'participants');
 const checkInsRef = ref(database, 'checkIns');
+const checkedInStudentsRef = ref(database, 'checkedInStudents');
 
 // Types
 export interface Participant {
@@ -41,6 +42,11 @@ export interface CheckIn {
     participantId: string;
     checkInTime: string;
     status: 'checked-in' | 'waiting-area';
+}
+
+export interface CheckedInStudent extends Participant {
+    checkInTime: string;
+    checkInDate: string;
 }
 
 export interface StudentRegistration {
@@ -137,5 +143,31 @@ export const db = {
             participants.push(childSnapshot.val());
         });
         return participants;
+    },
+
+    // Checked-in Students
+    async addCheckedInStudent(student: CheckedInStudent): Promise<void> {
+        const checkedInRef = ref(database, `checkedInStudents/${student.id}`);
+        await set(checkedInRef, student);
+    },
+
+    async getCheckedInStudents(): Promise<CheckedInStudent[]> {
+        const snapshot = await get(checkedInStudentsRef);
+        const students: CheckedInStudent[] = [];
+        snapshot.forEach((childSnapshot) => {
+            students.push(childSnapshot.val());
+        });
+        return students;
+    },
+
+    // Real-time listeners
+    onCheckedInStudentsUpdate(callback: (students: CheckedInStudent[]) => void): () => void {
+        return onValue(checkedInStudentsRef, (snapshot) => {
+            const students: CheckedInStudent[] = [];
+            snapshot.forEach((childSnapshot) => {
+                students.push(childSnapshot.val());
+            });
+            callback(students);
+        });
     }
 }; 

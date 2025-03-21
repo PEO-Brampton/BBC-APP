@@ -17,7 +17,7 @@
 }
 
 body {
-    background-color: var(--secondary-color);
+    background-color: #f8f9fa;
     color: var(--text-color);
     line-height: 1.6;
 }
@@ -860,4 +860,241 @@ th {
 .participants-table td:nth-child(9) { width: 12%; } /* Status */
 
 .participants-table th:nth-child(10),
-.participants-table td:nth-child(10) { width: 3%; } /* Actions */ 
+.participants-table td:nth-child(10) { width: 3%; } /* Actions */
+
+/* Judge Portal Styles */
+.judge-content {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.judge-controls {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.judge-controls .search-box {
+    position: relative;
+    margin-bottom: 1rem;
+    width: 100%;
+    display: block;
+}
+
+.judge-controls .search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    display: block;
+}
+
+.judge-controls .search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+    display: block;
+}
+
+.student-selection {
+    margin-top: 1rem;
+    display: block;
+}
+
+.student-selection label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.student-dropdown {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    display: block;
+}
+
+.judge-details {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    display: block;
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #fff !important;
+}
+
+/* Page Content */
+.page {
+    display: none;
+    padding: 20px;
+}
+
+.page.active {
+    display: block;
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Tables */
+.table {
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    cursor: pointer;
+    user-select: none;
+}
+
+.table th[data-sort]::after {
+    content: '↕';
+    margin-left: 5px;
+    opacity: 0.5;
+}
+
+.table th.sort-asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+.table th.sort-desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.checked-in {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.registered {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+/* Table Actions */
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Student Details Card */
+#studentDetails {
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+
+.student-info p {
+    margin-bottom: 0.5rem;
+}
+
+/* Message Alerts */
+.alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+
+    .table-actions {
+        flex-direction: column;
+    }
+
+    .btn-sm {
+        width: 100%;
+    }
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

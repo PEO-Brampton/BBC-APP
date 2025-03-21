@@ -1,5 +1,10 @@
 import './styles.css';
-import { db, Participant } from './firebase-config';
+import { db, Participant, CheckedInStudent } from './firebase-config';
+import { CheckInForm } from './components/CheckInForm';
+import { ParticipantsTable } from './components/ParticipantsTable';
+import { JudgePortal } from './components/JudgePortal';
+import { AdminPanel } from './components/AdminPanel';
+import { Leaderboard } from './components/Leaderboard';
 
 interface StudentRegistration {
     teamNumber: string;
@@ -14,13 +19,11 @@ interface StudentRegistration {
 
 // DOM Elements
 const sidebar = document.querySelector('.sidebar') as HTMLElement;
-const homeBtn = document.getElementById('homeBtn') as HTMLButtonElement;
 const checkInBtn = document.getElementById('checkInBtn') as HTMLButtonElement;
 const leaderboardBtn = document.getElementById('leaderboardBtn') as HTMLButtonElement;
 const judgeBtn = document.getElementById('judgeBtn') as HTMLButtonElement;
 const adminBtn = document.getElementById('adminBtn') as HTMLButtonElement;
 
-const homePage = document.getElementById('homePage') as HTMLDivElement;
 const checkInPage = document.getElementById('checkInPage') as HTMLDivElement;
 const leaderboardPage = document.getElementById('leaderboardPage') as HTMLDivElement;
 const judgePage = document.getElementById('judgePage') as HTMLDivElement;
@@ -34,14 +37,30 @@ const usersList = document.getElementById('usersList') as HTMLTableSectionElemen
 const studentData = document.getElementById('studentData') as HTMLTextAreaElement;
 const uploadStudentsBtn = document.getElementById('uploadStudents') as HTMLButtonElement;
 
+// Add generate random students button
+const generateRandomStudentsBtn = document.createElement('button');
+generateRandomStudentsBtn.className = 'primary-btn';
+generateRandomStudentsBtn.innerHTML = '<i class="fas fa-random"></i> Generate Random Students';
+generateRandomStudentsBtn.style.marginBottom = '1rem';
+document.querySelector('.registration-form')?.insertBefore(generateRandomStudentsBtn, studentData);
+
 // Check In Page Elements
 const participantSearch = document.getElementById('participantSearch') as HTMLInputElement;
 const participantsList = document.getElementById('participantsList') as HTMLTableSectionElement;
+
+// Judge Portal Elements
+const checkedInStudentsDropdown = document.getElementById('checkedInStudents') as HTMLSelectElement;
+const judgeDetails = document.querySelector('.judge-details') as HTMLDivElement;
+const judgeSearchInput = document.getElementById('judgeSearch') as HTMLInputElement;
 
 let users: any[] = [];
 
 let participants: Participant[] = [];
 let unsubscribeParticipants: (() => void) | null = null;
+
+let allCheckedInStudents: CheckedInStudent[] = [];
+let filteredCheckedInStudents: CheckedInStudent[] = [];
+let unsubscribeCheckedInStudents: (() => void) | null = null;
 
 // Add new interface for sort state
 interface SortState {
@@ -55,56 +74,47 @@ let currentSort: SortState = {
     direction: 'asc'
 };
 
-// Navigation
-function showPage(pageId: string) {
-    cleanup(); // Clean up previous listeners
-    
-    [homePage, checkInPage, leaderboardPage, judgePage, adminPage].forEach(page => {
-        page.classList.remove('active');
-    });
-    document.getElementById(pageId)?.classList.add('active');
+// Initialize components
+const checkInForm = new CheckInForm();
+const participantsTable = new ParticipantsTable();
+const judgePortal = new JudgePortal();
+const adminPanel = new AdminPanel();
+const leaderboard = new Leaderboard();
 
-    [homeBtn, checkInBtn, leaderboardBtn, judgeBtn, adminBtn].forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.getElementById(`${pageId.replace('Page', 'Btn')}`)?.classList.add('active');
-
-    // Update URL hash without triggering the hashchange event
-    const newHash = pageId.replace('Page', '');
-    if (location.hash.slice(1) !== newHash) {
-        history.pushState(null, '', `#${newHash}`);
-    }
-
-    if (pageId === 'adminPage') {
-        loadUsers();
-    } else if (pageId === 'checkInPage') {
-        loadParticipants();
-    }
-}
-
-// Event Listeners for Navigation
-homeBtn.addEventListener('click', () => showPage('homePage'));
-checkInBtn.addEventListener('click', () => showPage('checkInPage'));
-leaderboardBtn.addEventListener('click', () => showPage('leaderboardPage'));
-judgeBtn.addEventListener('click', () => showPage('judgePage'));
-adminBtn.addEventListener('click', () => showPage('adminPage'));
-
-// Handle page load and browser navigation
+// Handle navigation
 function handleNavigation() {
-    const hash = location.hash.slice(1) || 'home';
-    const pageId = `${hash}Page`;
-    if (document.getElementById(pageId)) {
-        showPage(pageId);
-    } else {
-        showPage('homePage');
-    }
+    const hash = window.location.hash.slice(1) || 'checkIn';
+    const pages = document.querySelectorAll('.page');
+    const navButtons = document.querySelectorAll('.nav-btn');
+
+    pages.forEach(page => {
+        page.classList.remove('active');
+        if (page.id === hash) {
+            page.classList.add('active');
+        }
+    });
+
+    navButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-page') === hash) {
+            btn.classList.add('active');
+        }
+    });
 }
 
-// Listen for hash changes
-window.addEventListener('hashchange', handleNavigation);
+// Add navigation event listeners
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = (e.currentTarget as HTMLElement).getAttribute('data-page')!;
+        window.location.hash = page;
+        handleNavigation();
+    });
+});
 
-// Handle initial page load
-handleNavigation();
+// Handle initial navigation and hash changes
+window.addEventListener('load', handleNavigation);
+window.addEventListener('hashchange', handleNavigation);
 
 // Leaderboard
 async function updateLeaderboard() {
@@ -429,24 +439,30 @@ async function handleWaitingArea(event: Event) {
         }
 
         const participant = participants.find(p => p.id === participantId);
-        if (participant) {
-            // Update participant status in Firebase
-            await db.updateParticipant(participantId, {
-                status: 'waiting-area'
-            });
-
-            // Add check-in record
-            await db.addCheckIn({
-                participantId,
-                checkInTime: getCurrentTime(),
-                status: 'waiting-area'
-            });
-
-            alert('Participant moved to waiting area!');
+        if (!participant) {
+            throw new Error('Participant not found');
         }
+
+        const currentTime = getCurrentTime();
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        // Update participant status in Firebase
+        await db.updateParticipant(participantId, {
+            status: 'waiting-area',
+            arrivalTime: currentTime
+        });
+
+        // Add check-in record
+        await db.addCheckIn({
+            participantId,
+            checkInTime: currentTime,
+            status: 'waiting-area'
+        });
+
+        showMessage('Participant moved to waiting area successfully!', 'success');
     } catch (error) {
         console.error('Error moving participant to waiting area:', error);
-        alert('Error moving participant to waiting area. Please try again.');
+        showMessage('Error moving participant to waiting area. Please try again.', 'error');
     }
 }
 
@@ -460,25 +476,40 @@ async function handleCheckIn(event: Event) {
         }
 
         const participant = participants.find(p => p.id === participantId);
-        if (participant) {
-            // Update participant status in Firebase
-            await db.updateParticipant(participantId, {
-                isCheckedIn: true,
-                status: 'checked-in'
-            });
-
-            // Add check-in record
-            await db.addCheckIn({
-                participantId,
-                checkInTime: getCurrentTime(),
-                status: 'checked-in'
-            });
-
-            alert('Participant checked in successfully!');
+        if (!participant) {
+            throw new Error('Participant not found');
         }
+
+        const currentTime = getCurrentTime();
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        // Update participant status in Firebase
+        await db.updateParticipant(participantId, {
+            isCheckedIn: true,
+            status: 'checked-in',
+            arrivalTime: participant.arrivalTime || currentTime
+        });
+
+        // Add check-in record
+        await db.addCheckIn({
+            participantId,
+            checkInTime: currentTime,
+            status: 'checked-in'
+        });
+
+        // Add to checked-in students table
+        await db.addCheckedInStudent({
+            ...participant,
+            checkInTime: currentTime,
+            checkInDate: currentDate,
+            isCheckedIn: true,
+            status: 'checked-in'
+        });
+
+        showMessage('Participant checked in successfully!', 'success');
     } catch (error) {
         console.error('Error checking in participant:', error);
-        alert('Error checking in participant. Please try again.');
+        showMessage('Error checking in participant. Please try again.', 'error');
     }
 }
 
@@ -583,6 +614,74 @@ async function handleStudentUpload() {
 
 // Event Listeners
 uploadStudentsBtn.addEventListener('click', handleStudentUpload);
+
+// Judge Portal Functions
+async function loadCheckedInStudents() {
+    try {
+        // Set up real-time listener for checked-in students
+        unsubscribeCheckedInStudents = db.onCheckedInStudentsUpdate((updatedStudents) => {
+            allCheckedInStudents = updatedStudents;
+            filteredCheckedInStudents = updatedStudents;
+            updateCheckedInStudentsDropdown();
+        });
+    } catch (error) {
+        console.error('Error loading checked-in students:', error);
+        showMessage('Error loading checked-in students. Please try again.', 'error');
+    }
+}
+
+function updateCheckedInStudentsDropdown() {
+    checkedInStudentsDropdown.innerHTML = '<option value="">Select a student...</option>';
+    
+    filteredCheckedInStudents.forEach(student => {
+        const option = document.createElement('option');
+        option.value = student.id;
+        option.textContent = `${student.teamNumber.padStart(4, '0')} - ${student.firstName} ${student.lastName} (${student.schoolName})`;
+        checkedInStudentsDropdown.appendChild(option);
+    });
+}
+
+// Add search functionality for judge portal
+judgeSearchInput.addEventListener('input', (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+    
+    filteredCheckedInStudents = allCheckedInStudents.filter(student => 
+        student.teamNumber.toLowerCase().includes(searchTerm) ||
+        student.firstName.toLowerCase().includes(searchTerm) ||
+        student.lastName.toLowerCase().includes(searchTerm) ||
+        student.schoolName.toLowerCase().includes(searchTerm)
+    );
+    
+    updateCheckedInStudentsDropdown();
+});
+
+function displayStudentDetails(studentId: string) {
+    const student = filteredCheckedInStudents.find(s => s.id === studentId);
+    if (!student) {
+        judgeDetails.innerHTML = '<p>No student selected</p>';
+        return;
+    }
+
+    judgeDetails.innerHTML = `
+        <h3>Student Details</h3>
+        <div class="student-info">
+            <p><strong>Team Number:</strong> ${student.teamNumber.padStart(4, '0')}</p>
+            <p><strong>Team Name:</strong> ${student.teamName}</p>
+            <p><strong>Name:</strong> ${student.firstName} ${student.lastName}</p>
+            <p><strong>Grade:</strong> ${student.grade}</p>
+            <p><strong>School:</strong> ${student.schoolName}</p>
+            <p><strong>Category:</strong> ${student.category}</p>
+            <p><strong>Check-in Time:</strong> ${student.checkInTime}</p>
+            <p><strong>Check-in Date:</strong> ${student.checkInDate}</p>
+        </div>
+    `;
+}
+
+// Event Listeners
+checkedInStudentsDropdown.addEventListener('change', (e) => {
+    const studentId = (e.target as HTMLSelectElement).value;
+    displayStudentDetails(studentId);
+});
 
 // Initial leaderboard update
 updateLeaderboard(); 

@@ -18,11 +18,17 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@services': path.resolve(__dirname, 'src/services'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@types': path.resolve(__dirname, 'src/types'),
+    },
   },
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: './',
+    publicPath: '/BBC-APP/',
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -36,5 +42,6 @@ module.exports = {
     compress: true,
     port: 4000,
     hot: true,
+    open: true
   },
 }; 
