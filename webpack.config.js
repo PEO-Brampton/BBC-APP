@@ -22,7 +22,7 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/BBC-APP/',
+    publicPath: './',
   },
   plugins: [
     new HtmlWebpackPlugin({
