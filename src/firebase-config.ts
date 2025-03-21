@@ -34,7 +34,7 @@ export interface Participant {
     category: string;
     arrivalTime: string | null;
     isCheckedIn: boolean;
-    status: 'not-checked-in' | 'checked-in' | 'waiting-area';
+    status: 'registered' | 'waiting-area' | 'checked-in';
 }
 
 export interface CheckIn {
@@ -117,7 +117,7 @@ export const db = {
                     ...student,
                     id: newParticipantRef.key,
                     isCheckedIn: false,
-                    status: 'not-checked-in',
+                    status: 'registered',
                     arrivalTime: student.arrivalTime || null
                 });
             });

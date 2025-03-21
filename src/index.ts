@@ -250,17 +250,17 @@ function getParticipantStatus(participant: Participant): Participant['status'] {
         return 'checked-in';
     }
     
-    if (participant.arrivalTime && !isArrivalTimeValid(participant.arrivalTime)) {
+    if (participant.status === 'waiting-area') {
         return 'waiting-area';
     }
     
-    return 'not-checked-in';
+    return 'registered';
 }
 
 function displayParticipants(participantsToDisplay: Participant[]) {
     participantsList.innerHTML = '';
     
-    // Create header row with sort buttons
+    // Create header row
     const headerRow = document.createElement('tr');
     headerRow.innerHTML = `
         <th class="sortable" data-column="teamNumber">
@@ -357,18 +357,28 @@ function displayParticipants(participantsToDisplay: Participant[]) {
                 <span class="status-badge ${status}">
                     <i class="fas ${status === 'checked-in' ? 'fa-check-circle' : 
                                   status === 'waiting-area' ? 'fa-clock' : 
-                                  'fa-times-circle'}"></i>
+                                  'fa-user'}"></i>
                     ${status === 'checked-in' ? 'Checked In' : 
                       status === 'waiting-area' ? 'Waiting Area' : 
-                      'Not Checked In'}
+                      'Registered'}
                 </span>
             </td>
             <td>
                 <div class="table-actions">
                     ${!participant.isCheckedIn ? `
-                        <button class="check-in-btn" data-participant-id="${participant.id}">
-                            <i class="fas fa-check"></i>
-                        </button>
+                        ${participant.status === 'registered' ? `
+                            <button class="waiting-area-btn" data-participant-id="${participant.id}">
+                                <i class="fas fa-clock"></i>
+                            </button>
+                            <button class="check-in-btn" data-participant-id="${participant.id}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                        ${participant.status === 'waiting-area' ? `
+                            <button class="check-in-btn" data-participant-id="${participant.id}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
                     ` : ''}
                 </div>
             </td>
@@ -376,10 +386,44 @@ function displayParticipants(participantsToDisplay: Participant[]) {
         participantsList.appendChild(row);
     });
 
-    // Add event listeners for check-in buttons
+    // Add event listeners for check-in and waiting area buttons
     document.querySelectorAll('.check-in-btn').forEach(btn => {
         btn.addEventListener('click', handleCheckIn);
     });
+    document.querySelectorAll('.waiting-area-btn').forEach(btn => {
+        btn.addEventListener('click', handleWaitingArea);
+    });
+}
+
+async function handleWaitingArea(event: Event) {
+    const btn = event.target as HTMLButtonElement;
+    const participantId = btn.dataset.participantId;
+    
+    try {
+        if (!participantId) {
+            throw new Error('Participant ID not found');
+        }
+
+        const participant = participants.find(p => p.id === participantId);
+        if (participant) {
+            // Update participant status in Firebase
+            await db.updateParticipant(participantId, {
+                status: 'waiting-area'
+            });
+
+            // Add check-in record
+            await db.addCheckIn({
+                participantId,
+                checkInTime: getCurrentTime(),
+                status: 'waiting-area'
+            });
+
+            alert('Participant moved to waiting area!');
+        }
+    } catch (error) {
+        console.error('Error moving participant to waiting area:', error);
+        alert('Error moving participant to waiting area. Please try again.');
+    }
 }
 
 async function handleCheckIn(event: Event) {
@@ -393,16 +437,6 @@ async function handleCheckIn(event: Event) {
 
         const participant = participants.find(p => p.id === participantId);
         if (participant) {
-            if (!participant.arrivalTime) {
-                alert('Please set arrival time before checking in.');
-                return;
-            }
-
-            if (!isArrivalTimeValid(participant.arrivalTime)) {
-                alert('Cannot check in before arrival time. Please wait until the scheduled arrival time.');
-                return;
-            }
-
             // Update participant status in Firebase
             await db.updateParticipant(participantId, {
                 isCheckedIn: true,
