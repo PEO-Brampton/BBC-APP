@@ -258,6 +258,7 @@ function getParticipantStatus(participant: Participant): Participant['status'] {
 }
 
 function displayParticipants(participantsToDisplay: Participant[]) {
+    console.log('Displaying participants with updated check-in functionality');
     participantsList.innerHTML = '';
     
     // Create header row
