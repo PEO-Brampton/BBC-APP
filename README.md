@@ -1,26 +1,29 @@
-# Bridge Building Competition Web App
+# Bridge Competition App
 
-A web application for managing a bridge building competition, featuring user registration, judge scoring system, and a leaderboard.
+A web application for managing a bridge building competition, built with TypeScript and Firebase.
 
 ## Features
 
-- User Registration and Authentication
-- Judge Scoring System
-- Real-time Leaderboard
-- Responsive Design
+- User authentication (register/login)
+- Leaderboard system
+- Judge portal for evaluating submissions
+- Modern, responsive UI with a static sidebar navigation
+- Real-time updates using Firebase
 
-## Prerequisites
+## Tech Stack
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-- Firebase account and project
+- TypeScript
+- Firebase (Authentication & Firestore)
+- HTML5
+- CSS3
+- Font Awesome Icons
 
-## Setup
+## Getting Started
 
 1. Clone the repository:
 ```bash
-git clone <your-repository-url>
-cd bridge-competition-app
+git clone https://github.com/yourusername/bridge-competition.git
+cd bridge-competition
 ```
 
 2. Install dependencies:
@@ -28,58 +31,26 @@ cd bridge-competition-app
 npm install
 ```
 
-3. Configure Firebase:
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Authentication with Email/Password
+3. Set up Firebase:
+   - Create a new Firebase project
+   - Enable Email/Password authentication
    - Create a Firestore database
-   - Get your Firebase configuration from Project Settings
-   - Replace the placeholder values in `src/firebase-config.ts` with your actual Firebase configuration
+   - Copy your Firebase configuration to `src/firebase-config.ts`
 
 4. Start the development server:
 ```bash
 npm start
 ```
 
-5. Build for production:
-```bash
-npm run build
-```
-
-## Deployment
-
-1. Build the project:
-```bash
-npm run build
-```
-
-2. Deploy to GitHub Pages:
-   - Create a new repository on GitHub
-   - Push your code to the repository
-   - Go to repository Settings > Pages
-   - Select the `gh-pages` branch as the source
-   - Your site will be available at `https://<your-username>.github.io/<repository-name>`
-
 ## Project Structure
 
 ```
-bridge-competition-app/
-├── src/
-│   ├── index.html
-│   ├── index.ts
-│   ├── styles.css
-│   └── firebase-config.ts
-├── package.json
-├── tsconfig.json
-├── webpack.config.js
-└── README.md
+src/
+├── index.html          # Main HTML file
+├── index.ts           # Main TypeScript file
+├── styles.css         # Global styles
+└── firebase-config.ts # Firebase configuration
 ```
-
-## Technologies Used
-
-- TypeScript
-- Firebase (Authentication & Firestore)
-- Webpack
-- HTML5 & CSS3
 
 ## Contributing
 

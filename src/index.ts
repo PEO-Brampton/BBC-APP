@@ -19,11 +19,13 @@ import {
 } from 'firebase/firestore';
 
 // DOM Elements
+const sidebar = document.querySelector('.sidebar') as HTMLElement;
 const homeBtn = document.getElementById('homeBtn') as HTMLButtonElement;
 const registerBtn = document.getElementById('registerBtn') as HTMLButtonElement;
 const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
 const leaderboardBtn = document.getElementById('leaderboardBtn') as HTMLButtonElement;
 const judgeBtn = document.getElementById('judgeBtn') as HTMLButtonElement;
+const logoutBtn = document.getElementById('logoutBtn') as HTMLButtonElement;
 
 const homePage = document.getElementById('homePage') as HTMLDivElement;
 const registerPage = document.getElementById('registerPage') as HTMLDivElement;
@@ -56,6 +58,17 @@ registerBtn.addEventListener('click', () => showPage('registerPage'));
 loginBtn.addEventListener('click', () => showPage('loginPage'));
 leaderboardBtn.addEventListener('click', () => showPage('leaderboardPage'));
 judgeBtn.addEventListener('click', () => showPage('judgePage'));
+
+// Logout
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        showPage('homePage');
+        alert('Logged out successfully!');
+    } catch (error) {
+        alert('Error logging out: ' + error);
+    }
+});
 
 // Registration
 registerForm.addEventListener('submit', async (e) => {
@@ -124,11 +137,16 @@ onAuthStateChanged(auth, (user) => {
         // User is signed in
         registerBtn.style.display = 'none';
         loginBtn.style.display = 'none';
-        // Add logout button if needed
+        logoutBtn.style.display = 'block';
+        leaderboardBtn.style.display = 'block';
+        judgeBtn.style.display = 'block';
     } else {
         // User is signed out
         registerBtn.style.display = 'block';
         loginBtn.style.display = 'block';
+        logoutBtn.style.display = 'none';
+        leaderboardBtn.style.display = 'none';
+        judgeBtn.style.display = 'none';
     }
 });
 
