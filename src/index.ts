@@ -69,6 +69,12 @@ function showPage(pageId: string) {
     });
     document.getElementById(`${pageId.replace('Page', 'Btn')}`)?.classList.add('active');
 
+    // Update URL hash without triggering the hashchange event
+    const newHash = pageId.replace('Page', '');
+    if (location.hash.slice(1) !== newHash) {
+        history.pushState(null, '', `#${newHash}`);
+    }
+
     if (pageId === 'adminPage') {
         loadUsers();
     } else if (pageId === 'checkInPage') {
@@ -82,6 +88,23 @@ checkInBtn.addEventListener('click', () => showPage('checkInPage'));
 leaderboardBtn.addEventListener('click', () => showPage('leaderboardPage'));
 judgeBtn.addEventListener('click', () => showPage('judgePage'));
 adminBtn.addEventListener('click', () => showPage('adminPage'));
+
+// Handle page load and browser navigation
+function handleNavigation() {
+    const hash = location.hash.slice(1) || 'home';
+    const pageId = `${hash}Page`;
+    if (document.getElementById(pageId)) {
+        showPage(pageId);
+    } else {
+        showPage('homePage');
+    }
+}
+
+// Listen for hash changes
+window.addEventListener('hashchange', handleNavigation);
+
+// Handle initial page load
+handleNavigation();
 
 // Leaderboard
 async function updateLeaderboard() {
