@@ -3,14 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
-  },
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
@@ -21,7 +17,12 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js'],
+  },
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/BBC-APP/',
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -33,7 +34,7 @@ module.exports = {
       directory: path.join(__dirname, 'dist'),
     },
     compress: true,
-    port: 9000,
+    port: 4000,
     hot: true,
   },
 }; 
